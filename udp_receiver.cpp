@@ -6,7 +6,7 @@
 
 #pragma comment(lib, "ws2_32.lib") // this links the WinSock Library
 
-#pragma pack(push, 1) /pack the struct here no padding
+#pragma pack(push, 1) //pack the struct here no padding
 struct IMUData {
     uint16_t magic;
     uint32_t t;
@@ -16,7 +16,7 @@ struct IMUData {
     float ax;
     float ay;
     float az;
-}; //now becomes 30 bytes from magic headers +2 bytes
+}; //now becomes 30 bytes since magic headers +2 bytes 
 
 struct UDPPacket {
     IMUData imu;
