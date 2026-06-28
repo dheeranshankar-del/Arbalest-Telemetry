@@ -16,7 +16,7 @@ struct IMUData {
     float ax;
     float ay;
     float az;
-}; //now becomes 30 bytes since magic headers +2 bytes 
+}; //IMU data becomes 30 bytes since magic headers +2 bytes 
 
 struct UDPPacket {
     IMUData imu;
