@@ -1,14 +1,14 @@
 """
 ============================================================
  ARBALEST ROCKETRY
- GROUND STATION  v1.0
+ GROUND STATION  
  Mission Control Software — Real-Time Telemetry Dashboard
  Designed for Arbalest Rocketry competition operations
 ============================================================
 
 Architecture:
   UDPReceiver      – Dedicated thread listening on UDP port 5005
-  TelemetryBus     – Thread-safe data bus (lock-free latest-packet store)
+  TelemetryBus     – Thread-safe data bus 
   MainWindow       – PyQt6 top-level window, 60 Hz refresh timer
   ArtificialHorizon– Custom QPainter widget
   RocketGL         – PyQtGraph GLViewWidget 3-D model
@@ -167,11 +167,8 @@ class TelemetryBus:
 #  UDP RECEIVER THREAD
 # ─────────────────────────────────────────────────────────────
 class UDPReceiver(QThread):
-    """
-    Non-blocking UDP listener running in a dedicated QThread.
-    Emits no Qt signals — writes directly to TelemetryBus to
-    avoid Qt event-loop overhead at 100 Hz.
-    """
+  # this class runs its own thread, lsitens for UDP packets, checks packet size, magic header and decodes binary and telemetery values
+ 
     import struct
 
     PACKET_MAGIC = 0xAA55
@@ -195,7 +192,7 @@ class UDPReceiver(QThread):
             return
 
         print(f"[UDP] Listening on port {self.port}")
-
+#reads the packet data
         while self._running:
             try:
                 data, _ = sock.recvfrom(256)
@@ -206,18 +203,18 @@ class UDPReceiver(QThread):
                 print(f"[UDP] Recv error: {e}")
 
         sock.close()
-
+# checks packet size 
     def _parse(self, raw: bytes):
         if len(raw) != self.PACKET_SIZE:
             return
-
+# checks magic header
         magic, _t, roll, pitch, yaw, ax, ay, az, _mac_send_us = self.struct.unpack(
             self.PACKET_FORMAT,
             raw,
         )
         if magic != self.PACKET_MAGIC:
             return
-
+# store decoded telemetry values 
         pkt = TelemetryPacket(
             roll  = roll,
             pitch = pitch,
@@ -226,7 +223,7 @@ class UDPReceiver(QThread):
             ay    = ay,
             az    = az,
         )
-        self.bus.update(pkt)
+        self.bus.update(pkt) #updates the bus
 
     def stop(self):
         self._running = False
