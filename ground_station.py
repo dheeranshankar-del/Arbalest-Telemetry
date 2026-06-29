@@ -108,7 +108,7 @@ class TelemetryBus:
         self._ts_ring: collections.deque = collections.deque(maxlen=200)
         self._dt_ring: collections.deque = collections.deque(maxlen=120)
 
-    def update(self, pkt: TelemetryPacket):
+    def update(self, pkt: TelemetryPacket): #records time, calcaultes interval between packets and stores newest packet
         now = time.time()
         with self._lock:
             if self._ts_ring:
@@ -129,12 +129,12 @@ class TelemetryBus:
             recent = sum(1 for t in self._ts_ring if t > cutoff)
             self._rate = float(recent)
 
-    def latest(self) -> TelemetryPacket:
+    def latest(self) -> TelemetryPacket: #This is called by the GUI to give most recent telemtry packet
         with self._lock:
             return self._packet
 
     @property
-    def connected(self) -> bool:
+    def connected(self) -> bool: # if we received the packet within last 3 seconds then link is connected
         with self._lock:
             if not self._connected:
                 return False
@@ -143,22 +143,22 @@ class TelemetryBus:
             return age < 3.0
 
     @property
-    def packet_rate(self) -> float:
+    def packet_rate(self) -> float: # how many packets per second
         with self._lock:
             return self._rate
 
     @property
-    def packet_count(self) -> int:
+    def packet_count(self) -> int: #total packets received
         with self._lock:
             return self._count
 
     @property
-    def packet_interval_ms(self) -> float:
+    def packet_interval_ms(self) -> float: #packet interval in milliseconds
         with self._lock:
             return self._interval_ms
 
     @property
-    def packet_jitter_ms(self) -> float:
+    def packet_jitter_ms(self) -> float: # how incocnistent the timing is (jitter)
         with self._lock:
             return self._jitter_ms
 
@@ -207,7 +207,7 @@ class UDPReceiver(QThread):
     def _parse(self, raw: bytes):
         if len(raw) != self.PACKET_SIZE:
             return
-# checks magic header
+# Decode the Binary Packet and verify the magic header
         magic, _t, roll, pitch, yaw, ax, ay, az, _mac_send_us = self.struct.unpack(
             self.PACKET_FORMAT,
             raw,
